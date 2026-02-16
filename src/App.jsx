@@ -27,7 +27,7 @@ function App() {
         element={
           <ProtectedRoute>
             <UserDashboard />
-          </ProtectedRoute>
+           </ProtectedRoute> 
         }
       />
 
@@ -36,7 +36,7 @@ function App() {
         element={
           <ProtectedRoute>
             <DeveloperDashboard />
-          </ProtectedRoute>
+          </ProtectedRoute> 
         }
       />
 
@@ -45,7 +45,7 @@ function App() {
         element={
           <ProtectedRoute>
             <AdminDashboard />
-          </ProtectedRoute>
+          </ProtectedRoute> 
         }
       />
 
