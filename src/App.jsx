@@ -9,6 +9,7 @@ import DeveloperDashboard from "./pages/DeveloperDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 
 import ProtectedRoute from "./components/ProtectedRoute"
+import AdminProjectDetails from "./pages/ProjectDetails"
 
 function App() {
   return (
@@ -46,6 +47,16 @@ function App() {
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute> 
+        }
+      />
+
+      {/* 🔥 Admin Project Details Page */}
+      <Route
+        path="/admin/project/:id"
+        element={
+          <ProtectedRoute role="ADMIN">
+            <AdminProjectDetails />
+          </ProtectedRoute>
         }
       />
 
