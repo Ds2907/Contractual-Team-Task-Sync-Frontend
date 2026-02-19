@@ -8,14 +8,18 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState([])
   const [clients, setClients] = useState([])
   const [developers, setDevelopers] = useState([])
+  const [showDevModal, setShowDevModal] = useState(false)
+  const [editingDeveloper, setEditingDeveloper] = useState(null)
+  const [showClientModal, setShowClientModal] = useState(false)
+  const [editingClient, setEditingClient] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const [showModal, setShowModal] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-const [showProfileModal, setShowProfileModal] = useState(false)
-const navigate = useNavigate()
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const navigate = useNavigate()
 
 
 
@@ -60,90 +64,90 @@ const navigate = useNavigate()
 
   function ProfileModal({ show, onClose, profile, reload }) {
 
-  const [form, setForm] = useState({
-    name: profile?.name || "",
-    phone: profile?.ph || ""
-  })
+    const [form, setForm] = useState({
+      name: profile?.name || "",
+      phone: profile?.ph || ""
+    })
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        name: profile.name,
-        phone: profile.ph
-      })
+    useEffect(() => {
+      if (profile) {
+        setForm({
+          name: profile.name,
+          phone: profile.ph
+        })
+      }
+    }, [profile])
+
+    if (!show) return null
+
+    function handleChange(e) {
+      const { name, value } = e.target
+      setForm(prev => ({ ...prev, [name]: value }))
     }
-  }, [profile])
 
-  if (!show) return null
+    async function handleSubmit(e) {
+      e.preventDefault()
 
-  function handleChange(e) {
-    const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
-  }
+      await api.put("/api/profile/update", form)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+      reload()
+      onClose()
+    }
 
-    await api.put("/api/profile/update", form)
+    return (
+      <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
+        <div className="bg-white w-[400px] p-6 rounded shadow-lg">
 
-    reload()
-    onClose()
-  }
+          <h2 className="text-lg font-bold mb-4">
+            Update Profile
+          </h2>
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-      <div className="bg-white w-[400px] p-6 rounded shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-3">
 
-        <h2 className="text-lg font-bold mb-4">
-          Update Profile
-        </h2>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Name"
+              className="w-full border p-2 rounded"
+            />
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="Phone"
+              className="w-full border p-2 rounded"
+            />
 
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Name"
-            className="w-full border p-2 rounded"
-          />
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-200 rounded"
+              >
+                Cancel
+              </button>
 
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Phone"
-            className="w-full border p-2 rounded"
-          />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
 
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded"
-            >
-              Cancel
-            </button>
+          </form>
 
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded"
-            >
-              Save
-            </button>
-          </div>
-
-        </form>
-
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
 
-function handleLogout() {
-  localStorage.removeItem("token")
-  window.location.href = "/"
-}
+  function handleLogout() {
+    localStorage.removeItem("token")
+    window.location.href = "/"
+  }
 
   function getFilteredProjects() {
     if (activeTab === "ONGOING")
@@ -177,45 +181,45 @@ function handleLogout() {
       <div className="flex-1 flex flex-col">
 
         {/* NAVBAR */}
-<div className="h-14 bg-white border-b flex justify-between items-center px-6 relative">
+        <div className="h-14 bg-white border-b flex justify-between items-center px-6 relative">
 
-  <h1 className="font-bold text-lg">Admin Dashboard</h1>
+          <h1 className="font-bold text-lg">Admin Dashboard</h1>
 
-  <div className="relative">
+          <div className="relative">
 
-    <button
-      onClick={() => setShowProfileMenu(prev => !prev)}
-      className="flex items-center gap-3"
-    >
-      <span>{profile?.name}</span>
+            <button
+              onClick={() => setShowProfileMenu(prev => !prev)}
+              className="flex items-center gap-3"
+            >
+              <span>{profile?.name}</span>
 
-      <div className="w-9 h-9 bg-blue-500 text-white rounded-full flex items-center justify-center">
-        {profile?.name?.[0]}
-      </div>
-    </button>
+              <div className="w-9 h-9 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                {profile?.name?.[0]}
+              </div>
+            </button>
 
-    {showProfileMenu && (
-      <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded border">
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded border">
 
-        <button
-          onClick={() => setShowProfileModal(true)}
-          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-        >
-          Update Profile
-        </button>
+                <button
+                  onClick={() => setShowProfileModal(true)}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Update Profile
+                </button>
 
-        <button
-          onClick={handleLogout}
-          className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-        >
-          Logout
-        </button>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
 
-      </div>
-    )}
+              </div>
+            )}
 
-  </div>
-</div>
+          </div>
+        </div>
 
 
         {/* CONTENT */}
@@ -223,10 +227,10 @@ function handleLogout() {
 
           {/* STATS */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <Stat title="Projects" value={profile.totalProjects} />
-            <Stat title="Clients" value={profile.totalClients} />
-            <Stat title="Developers" value={profile.totalDevelopers} />
-            <Stat title="Completed" value={profile.completedProjects} />
+            <Stat title="Total Projects" value={profile.totalProjects} />
+            <Stat title="Completed Projects" value={profile.completedProjects} />
+            <Stat title="Total Clients" value={profile.totalClients} />
+            <Stat title="Total Developers" value={profile.totalDevelopers} />
           </div>
 
           {/* ADD BUTTON */}
@@ -263,17 +267,69 @@ function handleLogout() {
 
           {/* CLIENTS */}
           {activeTab === "CLIENTS" && (
-            <div className="grid grid-cols-2 gap-4">
-              {clients.map(c => <UserCard key={c.id} user={c} />)}
-            </div>
+            <>
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => {
+                    setEditingClient(null)
+                    setShowClientModal(true)
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  + Add Client
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {clients.map(c => (
+                  <ClientCard
+                    key={c.id}
+                    client={c}
+                    reload={loadClients}
+                    onEdit={(client) => {
+                      setEditingClient(client)
+                      setShowClientModal(true)
+                    }}
+                  />
+                ))}
+              </div>
+            </>
           )}
+
 
           {/* DEVELOPERS */}
           {activeTab === "DEVS" && (
-            <div className="grid grid-cols-2 gap-4">
-              {developers.map(d => <UserCard key={d.id} user={d} />)}
-            </div>
+            <>
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => {
+                    setEditingDeveloper(null)
+                    setShowDevModal(true)
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  + Add Developer
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {developers.map(d => (
+                  <DeveloperCard
+                    key={d.id}
+                    developer={d}
+                    reload={loadDevelopers}
+                    onEdit={(dev) => {
+                      setEditingDeveloper(dev)
+                      setShowDevModal(true)
+                    }}
+                  />
+                ))}
+              </div>
+            </>
           )}
+
+
+
 
         </div>
       </div>
@@ -288,12 +344,26 @@ function handleLogout() {
         editingProject={editingProject}
       />
 
+      <DeveloperModal
+        show={showDevModal}
+        onClose={() => setShowDevModal(false)}
+        reload={loadDevelopers}
+        editingDeveloper={editingDeveloper}
+      />
+      <ClientModal
+        show={showClientModal}
+        onClose={() => setShowClientModal(false)}
+        reload={loadClients}
+        editingClient={editingClient}
+      />
+
+
       <ProfileModal
-  show={showProfileModal}
-  onClose={() => setShowProfileModal(false)}
-  profile={profile}
-  reload={loadProfile}
-/>
+        show={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        profile={profile}
+        reload={loadProfile}
+      />
 
     </div>
   )
@@ -414,6 +484,8 @@ function ProjectModal({ show, onClose, reload, clients, developers, editingProje
   )
 }
 
+
+
 /* ================= PROJECT CARD ================= */
 function ProjectCard({ project, reload, onEdit }) {
 
@@ -520,6 +592,240 @@ function ProjectCard({ project, reload, onEdit }) {
     </div>
   )
 }
+
+function DeveloperModal({ show, onClose, reload, editingDeveloper }) {
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    ph: "",
+    password: ""
+  })
+
+  useEffect(() => {
+    if (editingDeveloper) {
+      setForm({
+        name: editingDeveloper.name || "",
+        email: editingDeveloper.email || "",
+        ph: editingDeveloper.ph || ""
+      })
+    } else {
+      setForm({
+        name: "",
+        email: "",
+        ph: ""
+      })
+    }
+  }, [editingDeveloper])
+
+  if (!show) return null
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+
+    if (editingDeveloper) {
+      await api.put(`/api/admin/developers/${editingDeveloper.id}`, form)
+    } else {
+      await api.post("/api/admin/developers", form)
+    }
+
+    reload()
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
+      <div className="bg-white w-[450px] p-6 rounded shadow-lg">
+
+        <h3 className="text-lg font-bold mb-4">
+          {editingDeveloper ? "Edit Developer" : "Add Developer"}
+        </h3>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Name"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          <input
+            name="ph"
+            value={form.ph}
+            onChange={handleChange}
+            placeholder="Phone"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          <input
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="password (only for new developers)"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          <div className="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 rounded"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Save
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  )
+}
+
+function ClientModal({ show, onClose, reload, editingClient }) {
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    ph: "",
+    password: ""
+  })
+
+  useEffect(() => {
+    if (editingClient) {
+      setForm({
+        name: editingClient.name || "",
+        email: editingClient.email || "",
+        ph: editingClient.ph || ""
+      })
+    } else {
+      setForm({
+        name: "",
+        email: "",
+        ph: "",
+        password: ""
+      })
+    }
+  }, [editingClient])
+
+  if (!show) return null
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+
+    if (editingClient) {
+      await api.put(`/api/admin/clients/${editingClient.id}`, form)
+    } else {
+      await api.post("/api/admin/clients", form)
+    }
+
+    reload()
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
+      <div className="bg-white w-[450px] p-6 rounded shadow-lg">
+
+        <h3 className="text-lg font-bold mb-4">
+          {editingClient ? "Edit Client" : "Add Client"}
+        </h3>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Name"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          <input
+            name="ph"
+            value={form.ph}
+            onChange={handleChange}
+            placeholder="Phone"
+            className="w-full border p-2 rounded"
+            required
+          />
+
+          {!editingClient && (
+            <input
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="w-full border p-2 rounded"
+              required
+            />
+          )}
+
+          <div className="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 rounded"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Save
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  )
+}
+
+
 /* ================= USER CARD ================= */
 
 function UserCard({ user }) {
@@ -538,7 +844,7 @@ function MenuItem({ label, active, onClick }) {
     <li onClick={onClick}
       className={`p-2 rounded cursor-pointer
       ${active ? "bg-blue-100 text-blue-600 font-semibold"
-        : "hover:bg-gray-200"}`}>
+          : "hover:bg-gray-200"}`}>
       {label}
     </li>
   )
@@ -552,3 +858,72 @@ function Stat({ title, value }) {
     </div>
   )
 }
+
+function DeveloperCard({ developer, reload, onEdit }) {
+
+  async function handleDelete() {
+    if (!window.confirm("Delete developer?")) return
+
+    await api.delete(`/api/admin/developers/${developer.id}`)
+    reload()
+  }
+
+  return (
+    <div className="bg-white p-4 rounded shadow hover:shadow-md transition">
+      <h3 className="font-bold">{developer.name}</h3>
+      <p className="text-sm text-gray-500">{developer.email}</p>
+      <p className="text-sm text-gray-500">{developer.ph}</p>
+
+      <div className="flex gap-4 mt-3">
+        <button
+          onClick={() => onEdit(developer)}
+          className="text-blue-600 text-sm hover:underline"
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={handleDelete}
+          className="text-red-500 text-sm hover:underline"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  )
+}
+function ClientCard({ client, reload, onEdit }) {
+
+  async function handleDelete() {
+    if (!window.confirm("Delete client?")) return
+
+    await api.delete(`/api/admin/clients/${client.id}`)
+    reload()
+  }
+
+  return (
+    <div className="bg-white p-4 rounded shadow hover:shadow-md transition">
+      <h3 className="font-bold">{client.name}</h3>
+      <p className="text-sm text-gray-500">{client.email}</p>
+      <p className="text-sm text-gray-500">{client.ph}</p>
+
+      <div className="flex gap-4 mt-3">
+        <button
+          onClick={() => onEdit(client)}
+          className="text-blue-600 text-sm hover:underline"
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={handleDelete}
+          className="text-red-500 text-sm hover:underline"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  )
+}
+
+
