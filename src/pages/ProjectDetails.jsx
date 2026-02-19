@@ -41,7 +41,7 @@ export default function ProjectDetails() {
     loadData()
   }, [id])
 
-  /* ================= TOGGLE ================= */
+  /* ================= TOGGLE ================ */
 
   async function toggleTask(task) {
     await api.put(`/api/tasks/${task.id}`, {
